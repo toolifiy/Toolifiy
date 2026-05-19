@@ -526,6 +526,14 @@ footer p {
         gap: 1rem;
     }
     
+    .nav-container-new {
+        margin-left: -1rem !important;
+        margin-right: -1rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        width: auto !important;
+    }
+    
     .nav-links {
         width: 100%;
         overflow-x: auto;
