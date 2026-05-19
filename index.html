@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toolifiy - Convert Images to PDF Online Free & Securely</title>
-    <meta name="description" content="Convert images (JPG, PNG, JPEG) to PDF online for free. Toolifiy processes all documents directly inside your browser for maximum privacy, security, and lightning speed. No file size limits.">
-    <meta name="keywords" content="image to pdf, convert jpg to pdf, png to pdf, jpeg to pdf, convert image to pdf online, free image to pdf converter, secure pdf converter, browser based pdf generator, client side pdf converter, bulk image to pdf">
+    <meta name="description"
+        content="Convert images (JPG, PNG, JPEG) to PDF online for free. Toolifiy processes all documents directly inside your browser for maximum privacy, security, and lightning speed. No file size limits.">
+    <meta name="keywords"
+        content="image to pdf, convert jpg to pdf, png to pdf, jpeg to pdf, convert image to pdf online, free image to pdf converter, secure pdf converter, browser based pdf generator, client side pdf converter, bulk image to pdf">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Toolifiy">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://toolifiy.com/index.html">
     <meta property="og:title" content="Toolifiy - Convert Images to PDF Online Free & Securely">
-    <meta property="og:description" content="Convert JPG, PNG, and JPEG to PDF inside your browser. Your files never leave your device. Fast, safe, and 100% free.">
+    <meta property="og:description"
+        content="Convert JPG, PNG, and JPEG to PDF inside your browser. Your files never leave your device. Fast, safe, and 100% free.">
     <meta property="og:image" content="https://toolifiy.com/assets/og-image.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://toolifiy.com/index.html">
     <meta property="twitter:title" content="Toolifiy - Convert Images to PDF Online Free & Securely">
-    <meta property="twitter:description" content="Convert JPG, PNG, and JPEG to PDF inside your browser. Your files never leave your device. Fast, safe, and 100% free.">
+    <meta property="twitter:description"
+        content="Convert JPG, PNG, and JPEG to PDF inside your browser. Your files never leave your device. Fast, safe, and 100% free.">
     <meta property="twitter:image" content="https://toolifiy.com/assets/og-image.png">
 
     <!-- Canonical Link -->
     <link rel="canonical" href="https://toolifiy.com/index.html">
-    
+
     <!-- Mobile Theme Color -->
     <meta name="theme-color" content="#2563eb">
-    
+
     <!-- JSON-LD Schema Markup -->
     <script type="application/ld+json">
     {
@@ -54,7 +59,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
-    
+
     <!-- Libraries -->
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -63,17 +68,20 @@
     <!-- pdf.js for rendering PDF to Image -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
+
 <body>
     <header class="hero">
         <div class="logo" style="justify-content: center; margin-bottom: 1rem; font-size: 2.2rem;">
             <i class="fa-solid fa-layer-group"></i> Toolifiy
         </div>
         <h1>Fast, Secure, & 100% Free Tools</h1>
-        <p>All processing is done directly in your browser. No files are uploaded to our servers, ensuring your privacy.</p>
+        <p>All processing is done directly in your browser. No files are uploaded to our servers, ensuring your privacy.
+        </p>
     </header>
 
     <main class="main-content">
-        <div class="nav-container-new" style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 2rem; padding-bottom: 0.5rem;">
+        <div class="nav-container-new"
+            style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 2rem; padding-bottom: 0.5rem;">
             <ul class="nav-links" style="justify-content: center; width: max-content; margin: 0 auto;">
                 <li><a href="index.html" class="nav-item active" data-target="img-to-pdf">Image to PDF</a></li>
                 <li><a href="txt-to-pdf.html" class="nav-item" data-target="txt-to-pdf">Text to PDF</a></li>
@@ -90,13 +98,13 @@
                     <h2><i class="fa-regular fa-file-pdf"></i> Convert Images to PDF</h2>
                     <p>Select multiple images to combine them into a single PDF document.</p>
                 </div>
-                
+
                 <div class="drop-zone" id="img-pdf-dropzone">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                     <p>Drag & Drop Images here or <span>Browse</span></p>
                     <input type="file" id="img-pdf-input" accept="image/png, image/jpeg, image/jpg" multiple hidden>
                 </div>
-                
+
                 <div class="preview-container" id="img-pdf-preview" style="display: none;">
                     <h3>Selected Images (<span id="img-count">0</span>)</h3>
                     <div class="image-list" id="img-list"></div>
@@ -118,7 +126,7 @@
                     <h2><i class="fa-solid fa-file-lines"></i> Text to PDF Converter</h2>
                     <p>Paste or type your text below to instantly generate a formatted PDF.</p>
                 </div>
-                
+
                 <div class="text-editor-container">
                     <input type="text" id="txt-pdf-title" placeholder="Document Title (Optional)" class="input-field">
                     <textarea id="txt-pdf-content" placeholder="Type or paste your text here..."></textarea>
@@ -140,13 +148,13 @@
                     <h2><i class="fa-solid fa-object-group"></i> Merge PDFs</h2>
                     <p>Combine multiple PDF files into a single document.</p>
                 </div>
-                
+
                 <div class="drop-zone" id="merge-pdf-dropzone">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                     <p>Drag & Drop PDFs here or <span>Browse</span></p>
                     <input type="file" id="merge-pdf-input" accept="application/pdf" multiple hidden>
                 </div>
-                
+
                 <div class="preview-container" id="merge-pdf-preview" style="display: none;">
                     <h3>Selected PDFs (<span id="merge-count">0</span>)</h3>
                     <div class="image-list" id="merge-list"></div>
@@ -169,13 +177,13 @@
                     <h2><i class="fa-regular fa-images"></i> PDF to Image</h2>
                     <p>Convert your PDF pages into high-quality JPG images.</p>
                 </div>
-                
+
                 <div class="drop-zone" id="pdf-img-dropzone">
                     <i class="fa-solid fa-file-image"></i>
                     <p>Select a PDF to Convert</p>
                     <input type="file" id="pdf-img-input" accept="application/pdf" hidden>
                 </div>
-                
+
                 <div class="preview-container" id="pdf-img-preview" style="display: none;">
                     <h3>Selected PDF</h3>
                     <div class="image-list" id="pdf-img-list"></div>
@@ -197,19 +205,19 @@
                     <h2><i class="fa-solid fa-stamp"></i> Watermark PDF</h2>
                     <p>Add text watermark to all pages of your PDF.</p>
                 </div>
-                
                 <div class="drop-zone" id="watermark-pdf-dropzone">
                     <i class="fa-solid fa-file-shield"></i>
-                    <p>Select a PDF to Watermark</p>
-                    <input type="file" id="watermark-pdf-input" accept="application/pdf" hidden>
+                    <p>Select a PDF or Image to Watermark</p>
+                    <input type="file" id="watermark-pdf-input" accept="application/pdf, image/png, image/jpeg, image/jpg" hidden>
                 </div>
-                
+
                 <div class="preview-container" id="watermark-preview" style="display: none; margin-bottom: 1rem;">
-                    <h3>Selected PDF</h3>
+                    <h3>Selected Document</h3>
                     <div class="image-list" id="watermark-list"></div>
                 </div>
                 <div class="text-editor-container" id="watermark-controls" style="display: none;">
-                    <input type="text" id="watermark-text" placeholder="Enter watermark text (e.g., CONFIDENTIAL)" class="input-field">
+                    <input type="text" id="watermark-text" placeholder="Enter watermark text (e.g., CONFIDENTIAL)"
+                        class="input-field">
                 </div>
 
                 <div class="actions">
@@ -222,29 +230,57 @@
         </section>
 
         <!-- SEO Content & Information -->
-        <article class="seo-content" style="margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid var(--border);">
+        <article class="seo-content"
+            style="margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid var(--border);">
             <section id="about" style="margin-bottom: 2.5rem;">
-                <h2 style="font-size: 1.6rem; margin-bottom: 1rem; color: var(--primary);"><i class="fa-solid fa-circle-info"></i> About Toolifiy</h2>
-                <p style="margin-bottom: 1rem; line-height: 1.8; color: var(--text-muted); font-size: 1.05rem;">Toolifiy is a premium, all-in-one suite of PDF utilities designed to give you maximum control over your documents without ever compromising your privacy. Unlike other platforms, Toolifiy processes all your files directly within your web browser. This means your sensitive documents are never uploaded to any external servers. Whether you are merging files for work, converting images for an assignment, or protecting your intellectual property with watermarks, Toolifiy delivers blazing fast results entirely on the client-side.</p>
+                <h2 style="font-size: 1.6rem; margin-bottom: 1rem; color: var(--primary);"><i
+                        class="fa-solid fa-circle-info"></i> About Toolifiy</h2>
+                <p style="margin-bottom: 1rem; line-height: 1.8; color: var(--text-muted); font-size: 1.05rem;">Toolifiy
+                    is a premium, all-in-one suite of PDF utilities designed to give you maximum control over your
+                    documents without ever compromising your privacy. Unlike other platforms, Toolifiy processes all
+                    your files directly within your web browser. This means your sensitive documents are never uploaded
+                    to any external servers. Whether you are merging files for work, converting images for an
+                    assignment, or protecting your intellectual property with watermarks, Toolifiy delivers blazing fast
+                    results entirely on the client-side.</p>
             </section>
 
             <section id="how-to-use" style="margin-bottom: 2.5rem;">
-                <h2 style="font-size: 1.6rem; margin-bottom: 1.5rem; color: var(--primary);"><i class="fa-solid fa-book-open"></i> How to Use Our Tools</h2>
-                
-                <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main);">Convert Images to PDF</h3>
-                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Converting your images to a professional PDF document is incredibly easy. Simply click on the "Image to PDF" tab, and drag-and-drop your JPG or PNG files into the designated area. You can select multiple images at once. Once your images appear in the preview box, click the "Generate PDF" button, and your high-quality PDF will be instantly downloaded to your device.</p>
+                <h2 style="font-size: 1.6rem; margin-bottom: 1.5rem; color: var(--primary);"><i
+                        class="fa-solid fa-book-open"></i> How to Use Our Tools</h2>
 
-                <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main);">Text to PDF Converter</h3>
-                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Need to create a PDF from plain text? Choose the "Text to PDF" option from the menu. You can add a document title and paste or type your content into the large text area. With a single click, Toolifiy automatically formats your text into a standard A4-sized PDF document with proper margins and pagination.</p>
+                <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main);">Convert Images to PDF
+                </h3>
+                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Converting your images to
+                    a professional PDF document is incredibly easy. Simply click on the "Image to PDF" tab, and
+                    drag-and-drop your JPG or PNG files into the designated area. You can select multiple images at
+                    once. Once your images appear in the preview box, click the "Generate PDF" button, and your
+                    high-quality PDF will be instantly downloaded to your device.</p>
+
+                <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main);">Text to PDF Converter
+                </h3>
+                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Need to create a PDF from
+                    plain text? Choose the "Text to PDF" option from the menu. You can add a document title and paste or
+                    type your content into the large text area. With a single click, Toolifiy automatically formats your
+                    text into a standard A4-sized PDF document with proper margins and pagination.</p>
 
                 <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main);">Combine PDF</h3>
-                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Managing multiple PDF files can be chaotic. Our "Combine PDF" tool allows you to select several individual PDF files and merge them into one seamless document. Just upload your files, review the selection in the preview box, and hit merge. The tool operates at lightning speed, ensuring you get your combined file instantly.</p>
+                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Managing multiple PDF
+                    files can be chaotic. Our "Combine PDF" tool allows you to select several individual PDF files and
+                    merge them into one seamless document. Just upload your files, review the selection in the preview
+                    box, and hit merge. The tool operates at lightning speed, ensuring you get your combined file
+                    instantly.</p>
 
                 <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main);">PDF to Image</h3>
-                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Extracting pages from a PDF has never been simpler. Use our "PDF to Image" tool to convert every page of your PDF into high-resolution JPG images. Upload your PDF, click convert, and our browser-based engine will automatically save each page as a separate, crisp image file right to your downloads folder.</p>
+                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Extracting pages from a
+                    PDF has never been simpler. Use our "PDF to Image" tool to convert every page of your PDF into
+                    high-resolution JPG images. Upload your PDF, click convert, and our browser-based engine will
+                    automatically save each page as a separate, crisp image file right to your downloads folder.</p>
 
                 <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main);">Add Watermark</h3>
-                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Protect your documents from unauthorized use with the "Add Watermark" feature. Upload your PDF, type your desired watermark text (such as "CONFIDENTIAL" or "DRAFT"), and generate the file. Toolifiy will automatically stamp your custom text diagonally across every page of the document with professional transparency.</p>
+                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: var(--text-muted);">Protect your documents
+                    from unauthorized use with the "Add Watermark" feature. Upload your PDF, type your desired watermark
+                    text (such as "CONFIDENTIAL" or "DRAFT"), and generate the file. Toolifiy will automatically stamp
+                    your custom text diagonally across every page of the document with professional transparency.</p>
             </section>
 
 
@@ -263,4 +299,5 @@
     <!-- Custom Script -->
     <script src="script.js"></script>
 </body>
+
 </html>

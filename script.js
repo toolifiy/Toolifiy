@@ -162,9 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             div.appendChild(removeBtn);
             imgList.appendChild(div);
         });
-    }
-
-    btnImgToPdf.addEventListener('click', async () => {
+    }    btnImgToPdf.addEventListener('click', async () => {
         if (selectedImages.length === 0) return;
         
         const btnText = btnImgToPdf.querySelector('span');
@@ -175,6 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btnImgToPdf.disabled = true;
 
         try {
+            // Add a realistic 1.5s artificial delay for a premium experience
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
             
@@ -212,7 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 pdf.addImage(img.dataUrl, 'JPEG', x, y, renderWidth, renderHeight);
             }
             
-            pdf.save('toolifiy_images.pdf');
+            const pdfBlob = pdf.output('blob');
+            showPDFResultCard('img-to-pdf', pdfBlob, 'toolifiy_images.pdf', () => {
+                selectedImages = [];
+                updateImagePreview();
+            });
+
         } catch (error) {
             console.error('PDF Generation Error:', error);
             alert('An error occurred while generating the PDF.');
@@ -222,16 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
             btnImgToPdf.disabled = false;
         }
     });
-
-
     // ==========================================
     // 2. TEXT TO PDF CONVERTER
     // ==========================================
     const btnTxtToPdf = document.getElementById('btn-txt-to-pdf');
     const txtPdfTitle = document.getElementById('txt-pdf-title');
-    const txtPdfContent = document.getElementById('txt-pdf-content');
-
-    btnTxtToPdf.addEventListener('click', () => {
+    const txtPdfContent = document.getElementById('txt-pdf-content');    btnTxtToPdf.addEventListener('click', () => {
         const text = txtPdfContent.value.trim();
         if (!text) {
             alert('Please enter some text to convert.');
@@ -291,19 +293,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     cursorY += 7; // line height
                 }
                 
-                pdf.save('toolifiy_document.pdf');
+                const pdfBlob = pdf.output('blob');
+                showPDFResultCard('txt-to-pdf', pdfBlob, 'toolifiy_document.pdf', () => {
+                    txtPdfTitle.value = '';
+                    txtPdfContent.value = '';
+                    btnTxtToPdf.disabled = true;
+                });
+
             } catch (error) {
                 console.error('Text to PDF Error:', error);
                 alert('Failed to generate PDF.');
             } finally {
                 btnText.style.display = 'block';
                 spinner.style.display = 'none';
-                btnTxtToPdf.disabled = false;
             }
-        }, 500); // Small delay to allow UI to update
+        }, 1500); // 1.5 seconds premium processing delay
     });
-
-
     // ==========================================
     // 3. MERGE PDF
     // ==========================================
@@ -405,6 +410,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btnMergePdf.disabled = true;
 
         try {
+            // Add a realistic 1.5s artificial delay for a premium experience
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
             const { PDFDocument } = window.PDFLib;
             const mergedPdf = await PDFDocument.create();
 
@@ -417,15 +425,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const pdfBytes = await mergedPdf.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-            const url = URL.createObjectURL(blob);
             
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'toolifiy_merged.pdf';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            showPDFResultCard('merge-pdf', blob, 'toolifiy_merged.pdf', () => {
+                selectedMergePdfs = [];
+                updateMergePreview();
+                btnMergePdf.disabled = true;
+            });
             
         } catch (error) {
             console.error('Merge PDF Error:', error);
@@ -433,7 +438,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             btnText.style.display = 'block';
             spinner.style.display = 'none';
-            btnMergePdf.disabled = false;
         }
     });
 
@@ -528,8 +532,13 @@ document.addEventListener('DOMContentLoaded', () => {
         btnPdfToImg.disabled = true;
 
         try {
+            // Add a realistic 1.5s artificial delay for a premium experience
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
             const arrayBuffer = await fileToConvert.arrayBuffer();
             const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            
+            const extractedImages = [];
             
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 const page = await pdf.getPage(pageNum);
@@ -544,17 +553,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
                 
                 const imgData = canvas.toDataURL('image/jpeg', 0.9);
-                
-                const a = document.createElement('a');
-                a.href = imgData;
-                a.download = `page_${pageNum}_${fileToConvert.name.replace('.pdf', '')}.jpg`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                
-                // Small delay to prevent browser freezing/blocking multiple downloads
-                await new Promise(resolve => setTimeout(resolve, 300));
+                extractedImages.push({
+                    dataUrl: imgData,
+                    name: `page_${pageNum}_${fileToConvert.name.replace('.pdf', '')}.jpg`
+                });
             }
+
+            // Get first page as blob for the result card (useful for sharing)
+            const firstPageData = extractedImages[0].dataUrl;
+            const res = await fetch(firstPageData);
+            const firstPageBlob = await res.blob();
+
+            showPDFResultCard('pdf-to-img', firstPageBlob, `page_1_${fileToConvert.name.replace('.pdf', '')}.jpg`, () => {
+                fileToConvert = null;
+                pdfImgInfo.style.display = 'none';
+                pdfImgInput.value = '';
+                btnPdfToImg.disabled = true;
+            }, async () => {
+                // Custom Download Callback for downloading all extracted pages
+                for (let i = 0; i < extractedImages.length; i++) {
+                    const item = extractedImages[i];
+                    const a = document.createElement('a');
+                    a.href = item.dataUrl;
+                    a.download = item.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    // Small delay to prevent browser freezing/blocking multiple downloads
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+            });
             
         } catch (error) {
             console.error('PDF to Image Error:', error);
@@ -566,7 +595,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ==========================================
     // 6. WATERMARK PDF
     // ==========================================
     const wmDropzone = document.getElementById('watermark-pdf-dropzone');
@@ -586,8 +614,13 @@ document.addEventListener('DOMContentLoaded', () => {
     wmDropzone.addEventListener('drop', (e) => {
         e.preventDefault();
         wmDropzone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0 && (e.dataTransfer.files[0].type === 'application/pdf' || /\.pdf$/i.test(e.dataTransfer.files[0].name))) {
-            handleWatermarkFile(e.dataTransfer.files[0]);
+        if (e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+            const isImg = file.type.startsWith('image/') || /\.(png|jpe?g)$/i.test(file.name);
+            if (isPdf || isImg) {
+                handleWatermarkFile(file);
+            }
         }
     });
 
@@ -596,8 +629,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function handleWatermarkFile(file) {
-        if (!(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) {
-            alert('Please select a valid PDF file.');
+        const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+        const isImg = file.type.startsWith('image/') || /\.(png|jpe?g)$/i.test(file.name);
+        
+        if (!isPdf && !isImg) {
+            alert('Please select a valid PDF or Image file.');
             return;
         }
 
@@ -614,9 +650,14 @@ document.addEventListener('DOMContentLoaded', () => {
         div.style.padding = '10px';
         
         const icon = document.createElement('i');
-        icon.className = 'fa-solid fa-file-pdf';
+        if (isPdf) {
+            icon.className = 'fa-solid fa-file-pdf';
+            icon.style.color = 'var(--primary)';
+        } else {
+            icon.className = 'fa-solid fa-file-image';
+            icon.style.color = '#3b82f6';
+        }
         icon.style.fontSize = '2rem';
-        icon.style.color = 'var(--primary)';
         
         const text = document.createElement('span');
         text.textContent = file.name;
@@ -652,7 +693,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const text = wmText.value.trim();
         if (!text) {
-            alert('Please enter watermark text.');
+            wmText.classList.add('error-blink');
+            wmText.focus();
+            setTimeout(() => {
+                wmText.classList.remove('error-blink');
+            }, 1200);
             return;
         }
         
@@ -664,35 +709,75 @@ document.addEventListener('DOMContentLoaded', () => {
         btnWatermarkPdf.disabled = true;
 
         try {
-            const { PDFDocument, rgb, degrees } = window.PDFLib;
-            const arrayBuffer = await fileToWatermark.arrayBuffer();
-            const pdfDoc = await PDFDocument.load(arrayBuffer);
-            
-            const pages = pdfDoc.getPages();
-            
-            pages.forEach(page => {
-                const { width, height } = page.getSize();
-                page.drawText(text, {
-                    x: width / 4,
-                    y: height / 2,
-                    size: 50,
-                    color: rgb(0.5, 0.5, 0.5),
-                    opacity: 0.3,
-                    rotate: degrees(45),
-                });
-            });
+            // Add a realistic 1.5s artificial delay for a premium experience
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
-            const pdfBytes = await pdfDoc.save();
-            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `watermarked_${fileToWatermark.name}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const isPdf = fileToWatermark.type === 'application/pdf' || /\.pdf$/i.test(fileToWatermark.name);
+            let blob;
+            if (isPdf) {
+                const { PDFDocument, rgb, degrees } = window.PDFLib;
+                const arrayBuffer = await fileToWatermark.arrayBuffer();
+                const pdfDoc = await PDFDocument.load(arrayBuffer);
+                const pages = pdfDoc.getPages();
+                
+                pages.forEach(page => {
+                    const { width, height } = page.getSize();
+                    page.drawText(text, {
+                        x: width / 4,
+                        y: height / 2,
+                        size: Math.max(20, Math.floor(width / 12)),
+                        color: rgb(0.5, 0.5, 0.5),
+                        opacity: 0.3,
+                        rotate: degrees(45),
+                    });
+                });
+                const pdfBytes = await pdfDoc.save();
+                blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            } else {
+                // It is an image file!
+                const dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(fileToWatermark);
+                });
+
+                const img = new Image();
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = dataUrl;
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                // Add watermark
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(-45 * Math.PI / 180);
+                const fontSize = Math.max(24, Math.floor(canvas.width / 12));
+                ctx.font = `bold ${fontSize}px sans-serif`;
+                ctx.fillStyle = 'rgba(128, 128, 128, 0.3)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, 0, 0);
+                ctx.restore();
+
+                blob = await new Promise(resolve => canvas.toBlob(resolve, fileToWatermark.type || 'image/jpeg', 0.9));
+            }
+
+            showPDFResultCard('watermark-pdf', blob, `watermarked_${fileToWatermark.name}`, () => {
+                fileToWatermark = null;
+                wmPreview.style.display = 'none';
+                wmControls.style.display = 'none';
+                wmText.value = '';
+                wmInput.value = '';
+                btnWatermarkPdf.disabled = true;
+            });
             
         } catch (error) {
             console.error('Watermark Error:', error);
@@ -703,5 +788,148 @@ document.addEventListener('DOMContentLoaded', () => {
             btnWatermarkPdf.disabled = false;
         }
     });
+
+    // ==========================================
+    // RESULT PREVIEW & DOWNLOAD / SHARE CARD
+    // ==========================================
+    function showPDFResultCard(sectionId, blob, defaultFileName, resetCallback, customDownloadCallback) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+
+        let existingResult = section.querySelector('.pdf-result-card');
+        if (existingResult) {
+            existingResult.remove();
+        }
+
+        const resultCard = document.createElement('div');
+        resultCard.className = 'pdf-result-card';
+        resultCard.style.cssText = `
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.3s ease;
+        `;
+        const blobUrl = URL.createObjectURL(blob);
+        const isPdf = blob.type === 'application/pdf';
+        const titleText = isPdf ? 'Your PDF is Ready!' : 'Your File is Ready!';
+        const btnText = isPdf ? 'Download PDF' : 'Download File';
+
+        resultCard.innerHTML = `
+            <div style="font-size: 2.2rem; color: var(--success); margin-bottom: 0.5rem;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.25rem; color: var(--text-main);">${titleText}</h3>
+            <p class="pdf-file-address" style="font-size: 0.8rem; color: var(--text-muted); word-break: break-all; margin-bottom: 1.5rem; font-family: monospace; background: var(--bg-color); padding: 0.5rem; border-radius: 6px;">
+                ${blobUrl}
+            </p>
+            <div class="result-actions" style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="btn btn-erase" style="min-width: auto; padding: 0.75rem 1.5rem; background: #ef4444; color: white; border-radius: 8px; font-size: 1rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: var(--transition);">
+                    <i class="fa-solid fa-trash-can"></i> Erase
+                </button>
+                <button class="btn btn-download" style="min-width: auto; padding: 0.8rem 2.5rem; background: var(--primary); color: white; border-radius: 8px; font-size: 1.1rem; font-weight: 700; flex: 1.5; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: var(--transition);">
+                    <i class="fa-solid fa-download"></i> ${btnText}
+                </button>
+                <button class="btn btn-share" style="min-width: auto; padding: 0.75rem 1.5rem; background: #0ea5e9; color: white; border-radius: 8px; font-size: 1rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: var(--transition);">
+                    <i class="fa-solid fa-share-nodes"></i> Share
+                </button>
+            </div>
+        `;
+
+        const actionsDiv = section.querySelector('.actions');
+        if (actionsDiv) {
+            actionsDiv.parentNode.insertBefore(resultCard, actionsDiv.nextSibling);
+        }
+
+        const btnErase = resultCard.querySelector('.btn-erase');
+        const btnDownload = resultCard.querySelector('.btn-download');
+        const btnShare = resultCard.querySelector('.btn-share');
+
+        btnErase.addEventListener('mouseover', () => btnErase.style.opacity = '0.85');
+        btnErase.addEventListener('mouseout', () => btnErase.style.opacity = '1');
+        btnDownload.addEventListener('mouseover', () => btnDownload.style.opacity = '0.9');
+        btnDownload.addEventListener('mouseout', () => btnDownload.style.opacity = '1');
+        btnShare.addEventListener('mouseover', () => btnShare.style.opacity = '0.85');
+        btnShare.addEventListener('mouseout', () => btnShare.style.opacity = '1');
+        btnErase.addEventListener('click', () => {
+            resultCard.remove();
+            if (resetCallback) resetCallback();
+            URL.revokeObjectURL(blobUrl);
+        });
+        btnDownload.addEventListener('click', async () => {
+            btnDownload.disabled = true;
+            btnDownload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing...';
+            
+            // Wait 1.2 seconds for realistic loading
+            await new Promise(resolve => setTimeout(resolve, 1200));
+
+            if (customDownloadCallback) {
+                try {
+                    await customDownloadCallback();
+                } catch (err) {
+                    console.error('Custom download error:', err);
+                }
+            } else {
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = defaultFileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+            
+            btnDownload.disabled = false;
+            btnDownload.innerHTML = '<i class="fa-solid fa-circle-check"></i> Downloaded';
+            btnDownload.style.background = '#10b981'; // Success green background
+        });
+        btnShare.addEventListener('click', async () => {
+            btnShare.disabled = true;
+            const originalHTML = btnShare.innerHTML;
+            btnShare.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sharing...';
+
+            try {
+                const file = new File([blob], defaultFileName, { type: blob.type || 'application/pdf' });
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Share PDF - Toolifiy',
+                            text: 'Here is my generated PDF document!'
+                        });
+                        return;
+                    } catch (shareErr) {
+                        console.log('File sharing error, trying text/URL share:', shareErr);
+                        try {
+                            await navigator.share({
+                                title: 'Toolifiy PDF Toolkit',
+                                text: 'I generated a PDF document using Toolifiy!',
+                                url: window.location.href
+                            });
+                            return;
+                        } catch (textShareErr) {
+                            console.log('All sharing methods failed:', textShareErr);
+                        }
+                    }
+                }
+                
+                // Fallback direct download
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = defaultFileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                alert("Native file sharing is not supported in this environment/browser (requires HTTPS). The file has been downloaded instead so you can send it manually.");
+            } catch (err) {
+                console.error('Share failed:', err);
+            } finally {
+                btnShare.disabled = false;
+                btnShare.innerHTML = originalHTML;
+            }
+        });
+    }
 
 });

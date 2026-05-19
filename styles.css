@@ -22,6 +22,11 @@
     font-family: 'Inter', sans-serif;
 }
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-main);
@@ -536,8 +541,13 @@ footer p {
     .main-content {
         padding: 1rem;
     }
-    
-    .card {
-        padding: 1.5rem;
-    }
+}
+.error-blink {
+    animation: errorBlink 0.4s ease 3;
+    border-color: #ef4444 !important;
+}
+
+@keyframes errorBlink {
+    0%, 100% { border-color: var(--border); box-shadow: none; }
+    50% { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2); }
 }

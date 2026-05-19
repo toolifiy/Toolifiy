@@ -203,16 +203,14 @@
                     <h2><i class="fa-solid fa-stamp"></i> Watermark PDF</h2>
                     <p>Add text watermark to all pages of your PDF.</p>
                 </div>
-                
-                <div class="drop-zone" id="watermark-pdf-dropzone">
+                                <div class="drop-zone" id="watermark-pdf-dropzone">
                     <i class="fa-solid fa-file-shield"></i>
-                    <p>Select a PDF to Watermark</p>
-                    <input type="file" id="watermark-pdf-input" accept="application/pdf" hidden>
+                    <p>Select a PDF or Image to Watermark</p>
+                    <input type="file" id="watermark-pdf-input" accept="application/pdf, image/png, image/jpeg, image/jpg" hidden>
                 </div>
                 
                 <div class="preview-container" id="watermark-preview" style="display: none; margin-bottom: 1rem;">
-                    <h3>Selected PDF</h3>
-                    <div class="image-list" id="watermark-list"></div>
+                    <h3>Selected Document</h3>                    <div class="image-list" id="watermark-list"></div>
                 </div>
                 <div class="text-editor-container" id="watermark-controls" style="display: none;">
                     <input type="text" id="watermark-text" placeholder="Enter watermark text (e.g., CONFIDENTIAL)" class="input-field">
