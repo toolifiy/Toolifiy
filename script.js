@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.body.appendChild(loader);
 
-    // Intercept nav links and footer links for 3-second smooth transition
-    const linksToTransition = document.querySelectorAll('.nav-item, .footer-links a');
+    // Intercept nav links, footer links, and logo links for smooth transition
+    const linksToTransition = document.querySelectorAll('.nav-item, .footer-links a, .logo a');
     linksToTransition.forEach(link => {
         link.addEventListener('click', (e) => {
             const targetUrl = link.getAttribute('href');
@@ -33,18 +33,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Set loading text based on destination
                     const loaderText = loader.querySelector('.loader-text');
-                    if (targetUrl.includes('txt-to-pdf')) {
-                        loaderText.textContent = 'Initializing Text to PDF Converter...';
-                    } else if (targetUrl.includes('merge-pdf')) {
-                        loaderText.textContent = 'Preparing PDF Merger module...';
-                    } else if (targetUrl.includes('pdf-to-img')) {
-                        loaderText.textContent = 'Setting up PDF to JPG Renderer...';
-                    } else if (targetUrl.includes('watermark-pdf')) {
-                        loaderText.textContent = 'Loading Watermark module...';
-                    } else if (targetUrl.includes('index.html')) {
-                        loaderText.textContent = 'Activating Image to PDF Engine...';
-                    } else {
-                        loaderText.textContent = 'Securing page environment...';
+                    if (loaderText) {
+                        if (targetUrl.includes('txt-to-pdf')) {
+                            loaderText.textContent = 'Initializing Text to PDF Converter...';
+                        } else if (targetUrl.includes('merge-pdf')) {
+                            loaderText.textContent = 'Preparing PDF Merger module...';
+                        } else if (targetUrl.includes('pdf-to-img')) {
+                            loaderText.textContent = 'Setting up PDF to JPG Renderer...';
+                        } else if (targetUrl.includes('watermark-pdf')) {
+                            loaderText.textContent = 'Loading Watermark module...';
+                        } else if (targetUrl.includes('index.html')) {
+                            loaderText.textContent = 'Activating Image to PDF Engine...';
+                        } else {
+                            loaderText.textContent = 'Securing page environment...';
+                        }
                     }
                     
                     // Show loader
@@ -64,6 +66,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Ensure loader is hidden on pageshow (handles browser Back button / bfcache recovery)
+    window.addEventListener('pageshow', () => {
+        if (loader) {
+            loader.classList.remove('show');
+            const fill = loader.querySelector('.progress-bar-fill');
+            if (fill) fill.style.width = '0%';
+        }
+    });
+    
+    // Exit early on static pages (Privacy Policy, Terms, Contact) to avoid TypeErrors
+    if (!document.querySelector('.tool-section')) {
+        return;
+    }
     
     // --- Utility Functions ---
     const formatBytes = (bytes, decimals = 2) => {
@@ -790,6 +806,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
+    // PREMIUM DOWNLOAD SUCCESS POPUP
+    // ==========================================
+    function showDownloadSuccessPopup(fileName) {
+        let modal = document.getElementById('download-success-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'download-success-modal';
+            modal.className = 'download-modal-overlay';
+            document.body.appendChild(modal);
+        }
+
+        // Clean filename for display (remove paths/etc if any)
+        const displayName = fileName.split('/').pop().split('\\').pop();
+
+        modal.innerHTML = `
+            <div class="download-modal-card">
+                <div class="download-modal-icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3 class="download-modal-title">File Downloaded!</h3>
+                <p class="download-modal-text">
+                    Aapki file <strong>${displayName}</strong> aapki storage mein download ho chuki hai.<br>
+                    Aap ise seedha apne <strong>File Manager</strong> ya browser ki <strong>Download History</strong> mein dekh sakte hain.
+                </p>
+                <button class="download-modal-btn">Achaa, Theek Hai</button>
+            </div>
+        `;
+
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 50);
+
+        const closeBtn = modal.querySelector('.download-modal-btn');
+        const closeModal = () => {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.remove();
+            }, 300);
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
+    // ==========================================
     // RESULT PREVIEW & DOWNLOAD / SHARE CARD
     // ==========================================
     function showPDFResultCard(sectionId, blob, defaultFileName, resetCallback, customDownloadCallback) {
@@ -848,43 +913,49 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnDownload = resultCard.querySelector('.btn-download');
         const btnShare = resultCard.querySelector('.btn-share');
 
-        btnErase.addEventListener('mouseover', () => btnErase.style.opacity = '0.85');
-        btnErase.addEventListener('mouseout', () => btnErase.style.opacity = '1');
-        btnDownload.addEventListener('mouseover', () => btnDownload.style.opacity = '0.9');
-        btnDownload.addEventListener('mouseout', () => btnDownload.style.opacity = '1');
-        btnShare.addEventListener('mouseover', () => btnShare.style.opacity = '0.85');
-        btnShare.addEventListener('mouseout', () => btnShare.style.opacity = '1');
-        btnErase.addEventListener('click', () => {
-            resultCard.remove();
-            if (resetCallback) resetCallback();
-            URL.revokeObjectURL(blobUrl);
-        });
-        btnDownload.addEventListener('click', async () => {
-            btnDownload.disabled = true;
-            btnDownload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing...';
-            
-            // Wait 1.2 seconds for realistic loading
-            await new Promise(resolve => setTimeout(resolve, 1200));
+        if (btnErase) {
+            btnErase.addEventListener('mouseover', () => btnErase.style.opacity = '0.85');
+            btnErase.addEventListener('mouseout', () => btnErase.style.opacity = '1');
+            btnErase.addEventListener('click', () => {
+                resultCard.remove();
+                if (resetCallback) resetCallback();
+                URL.revokeObjectURL(blobUrl);
+            });
+        }
 
-            if (customDownloadCallback) {
-                try {
-                    await customDownloadCallback();
-                } catch (err) {
-                    console.error('Custom download error:', err);
+        if (btnDownload) {
+            btnDownload.addEventListener('mouseover', () => btnDownload.style.opacity = '0.9');
+            btnDownload.addEventListener('mouseout', () => btnDownload.style.opacity = '1');
+            btnDownload.addEventListener('click', async () => {
+                btnDownload.disabled = true;
+                btnDownload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing...';
+                
+                // Wait 1.2 seconds for realistic loading
+                await new Promise(resolve => setTimeout(resolve, 1200));
+
+                if (customDownloadCallback) {
+                    try {
+                        await customDownloadCallback();
+                    } catch (err) {
+                        console.error('Custom download error:', err);
+                    }
+                } else {
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = defaultFileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
                 }
-            } else {
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = defaultFileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            }
-            
-            btnDownload.disabled = false;
-            btnDownload.innerHTML = '<i class="fa-solid fa-circle-check"></i> Downloaded';
-            btnDownload.style.background = '#10b981'; // Success green background
-        });
+                
+                btnDownload.disabled = false;
+                btnDownload.innerHTML = '<i class="fa-solid fa-circle-check"></i> Downloaded';
+                btnDownload.style.background = '#10b981'; // Success green background
+                
+                // Show success modal popup
+                showDownloadSuccessPopup(defaultFileName);
+            });
+        }
         btnShare.addEventListener('click', async () => {
             btnShare.disabled = true;
             const originalHTML = btnShare.innerHTML;
