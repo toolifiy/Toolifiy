@@ -806,52 +806,63 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // PREMIUM DOWNLOAD SUCCESS POPUP
+    // PREMIUM DOWNLOAD SUCCESS TOAST
     // ==========================================
     function showDownloadSuccessPopup(fileName) {
-        let modal = document.getElementById('download-success-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'download-success-modal';
-            modal.className = 'download-modal-overlay';
-            document.body.appendChild(modal);
+        // Remove existing toast if present to prevent stacking
+        let existingToast = document.getElementById('download-success-toast');
+        if (existingToast) {
+            existingToast.remove();
         }
+
+        const toast = document.createElement('div');
+        toast.id = 'download-success-toast';
+        toast.className = 'download-toast';
+        document.body.appendChild(toast);
 
         // Clean filename for display (remove paths/etc if any)
         const displayName = fileName.split('/').pop().split('\\').pop();
 
-        modal.innerHTML = `
-            <div class="download-modal-card">
-                <div class="download-modal-icon">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <h3 class="download-modal-title">File Downloaded!</h3>
-                <p class="download-modal-text">
-                    Aapki file <strong>${displayName}</strong> aapki storage mein download ho chuki hai.<br>
-                    Aap ise seedha apne <strong>File Manager</strong> ya browser ki <strong>Download History</strong> mein dekh sakte hain.
-                </p>
-                <button class="download-modal-btn">Achaa, Theek Hai</button>
+        toast.innerHTML = `
+            <div class="download-toast-icon">
+                <i class="fa-solid fa-circle-check"></i>
             </div>
+            <div class="download-toast-content">
+                <h4 class="download-toast-title">File Downloaded Successfully</h4>
+                <p class="download-toast-msg">
+                    The file <strong>${displayName}</strong> has been successfully saved. You can find it in your device storage or Download History.
+                </p>
+            </div>
+            <button class="download-toast-close" title="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         `;
 
+        // Slide in
         setTimeout(() => {
-            modal.classList.add('show');
+            toast.classList.add('show');
         }, 50);
 
-        const closeBtn = modal.querySelector('.download-modal-btn');
-        const closeModal = () => {
-            modal.classList.remove('show');
+        // Auto dismiss after 6 seconds
+        const dismissTimeout = setTimeout(() => {
+            closeToast();
+        }, 6000);
+
+        const closeToast = () => {
+            clearTimeout(dismissTimeout);
+            toast.classList.remove('show');
             setTimeout(() => {
-                modal.remove();
+                toast.remove();
             }, 300);
         };
 
-        closeBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
+        // Close on clicking close button or toast itself
+        const closeBtn = toast.querySelector('.download-toast-close');
+        if (closeBtn) closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeToast();
         });
+        toast.addEventListener('click', closeToast);
     }
 
     // ==========================================
